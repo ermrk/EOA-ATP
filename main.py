@@ -1,8 +1,61 @@
+import random
+
+import sys
+
 from individual import Individual
-from match_results import MatchResults
+from leaderboard import Leaderboard
 
-permutation=[2,1,3]
-matchResults = MatchResults()
-matchResults.print(permutation)
 
-print(matchResults.evaluate_permutation(permutation))
+def generate_initial_population(length, leaderboard):
+    individual = Individual(leaderboard)
+    individual.generate(length)
+    return individual
+
+
+def alter_individual(individual, position, difference):
+    phenotype = individual.phenotype.copy()
+    player = phenotype[position]
+    phenotype[position] = phenotype[position - difference]
+    phenotype[position - difference] = player
+    altered_individual = Individual(leaderboard)
+    altered_individual.set_phenotype(phenotype)
+    return altered_individual
+
+
+def is_valid_alterance(length, position, difference):
+    if position - difference < 0:
+        return False
+    if position - difference > length - 1:
+        return False
+    return True
+
+
+# load data
+number_of_iterartions = int(sys.argv[2])
+leaderboard = Leaderboard(sys.argv[1])
+number_of_players = leaderboard.get_number_of_players()
+
+# make initial individual
+individual = generate_initial_population(number_of_players, leaderboard)
+
+# calculate its quality
+best_so_far = individual
+print("G: " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
+
+# LOOP
+difference = 1
+position = 0
+
+for i in range(0, number_of_iterartions):
+    while not is_valid_alterance(number_of_players, position, difference):
+        difference = 1
+        position = random.randrange(len(best_so_far.phenotype))
+
+    # try to improve it
+    altered_individual = alter_individual(best_so_far, position, difference)
+    # decide if we will accept it
+    if altered_individual.quality > best_so_far.quality:
+        best_so_far = altered_individual
+        print(str(i) + ": " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
+    position = random.randrange(len(best_so_far.phenotype))
+    difference = random.randrange(-len(best_so_far.phenotype), len(best_so_far.phenotype))

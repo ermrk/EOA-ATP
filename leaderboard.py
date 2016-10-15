@@ -1,6 +1,8 @@
-class MatchResults:
-    def __init__(self):
-        with open("data/ATP_3.dat") as file:
+class Leaderboard:
+    def __init__(self, data_file):
+        self.results = 0
+
+        with open(data_file) as file:
             first_line = True
             i = 0
             for line in file:
@@ -36,3 +38,6 @@ class MatchResults:
         to_print = self.get_permutation(phenotype)
         for line in to_print:
             print(line)
+
+    def get_number_of_players(self):
+        return len(self.results)
