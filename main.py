@@ -1,8 +1,5 @@
 # Start with params:
 # py -3 [file with leaderboard] [number of iterations]
-
-import random
-
 import sys
 
 from individual import Individual
@@ -69,6 +66,6 @@ for i in range(0, number_of_iterartions):
         position = 0
         difference = -1
 
-#print best
+# print best
 for player in best_so_far.phenotype:
     print(str(player)+" ", end="")
