@@ -1,3 +1,6 @@
+# Start with params:
+# py -3 [file with leaderboard] [number of iterations]
+
 import random
 
 import sys
@@ -65,3 +68,7 @@ for i in range(0, number_of_iterartions):
     if -difference >= leaderboard.get_number_of_players():
         position = 0
         difference = -1
+
+#print best
+for player in best_so_far.phenotype:
+    print(str(player)+" ", end="")
