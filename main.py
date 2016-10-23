@@ -42,10 +42,10 @@ individual = generate_initial_population(number_of_players, leaderboard)
 best_so_far = individual
 print("G: " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
 
-# LOOP
 difference = -1
 position = 0
 
+# LOOP
 for i in range(0, number_of_iterartions):
     # try to improve it
     altered_individual = alter_individual(best_so_far, position, difference)
@@ -55,9 +55,13 @@ for i in range(0, number_of_iterartions):
         print(str(i) + ": " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
         position = -1
     position += 1
+
+    # Tests of indexes
+    # we are at the end of leaderboard
     if position >= number_of_players + difference:
         position = 0
         difference -= 1
+    # we shuffle too much
     if -difference >= leaderboard.get_number_of_players():
         position = 0
         difference = -1
