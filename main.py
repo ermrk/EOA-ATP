@@ -43,19 +43,21 @@ best_so_far = individual
 print("G: " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
 
 # LOOP
-difference = 1
+difference = -1
 position = 0
 
 for i in range(0, number_of_iterartions):
-    while not is_valid_alterance(number_of_players, position, difference):
-        difference = 1
-        position = random.randrange(len(best_so_far.phenotype))
-
     # try to improve it
     altered_individual = alter_individual(best_so_far, position, difference)
     # decide if we will accept it
     if altered_individual.quality > best_so_far.quality:
         best_so_far = altered_individual
         print(str(i) + ": " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
-    position = random.randrange(len(best_so_far.phenotype))
-    difference = random.randrange(-len(best_so_far.phenotype), len(best_so_far.phenotype))
+        position = -1
+    position += 1
+    if position >= number_of_players + difference:
+        position = 0
+        difference -= 1
+    if -difference >= leaderboard.get_number_of_players():
+        position = 0
+        difference = -1
