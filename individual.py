@@ -1,48 +1,18 @@
 import random
+from copy import copy
+
+import collections
 
 
 class Individual:
     def __init__(self, leaderboard):
         self.phenotype = None
-        self.genotype = None
         self.quality = 0
         self.leaderboard = leaderboard
 
     def set_phenotype(self, phenotype):
         self.phenotype = phenotype
-        self.genotype = self._encode(phenotype)
         self._evaluate()
-
-    def set_genotype(self, genotype):
-        self.genotype = genotype
-        self.phenotype = self._decode(genotype)
-        self._evaluate()
-
-    def _encode(self, phenotype):
-        genotype = [None] * len(phenotype)
-        for i in range(0, len(phenotype)):
-            genotype[i] = 0
-            m = 0
-            while phenotype[m] != i + 1:
-                if phenotype[m] > i + 1:
-                    genotype[i] += 1
-                m += 1
-        return genotype
-
-    def _decode(self, inv):
-        n = len(inv)
-        n_inv = [None] + inv
-        perm = [None] * (n + 1)
-        pos = [0] * (n + 1)
-        for i in range(n, 0, -1):
-            for m in range(i + 1, n + 1):
-                print(m)
-                if pos[m] >= n_inv[i] + 1:
-                    pos[m] += 1
-            pos[i] = n_inv[i] + 1
-        for i in range(1, n + 1):
-            perm[pos[i]] = i
-        return perm[1:n + 1]
 
     def _evaluate(self):
         self.quality = self.leaderboard.evaluate_permutation(self.phenotype)
@@ -54,5 +24,33 @@ class Individual:
         random.shuffle(permutation)
         self.set_phenotype(permutation)
 
+    def mutate(self, n_mutations):
+        for i in range(0,n_mutations):
+            elementOne = random.randrange(0, len(self.phenotype))
+            elementTwo=elementOne
+            while (elementTwo == elementOne):
+                elementTwo = random.randrange(0, len(self.phenotype))
+            temp=self.phenotype[elementOne]
+            self.phenotype[elementOne]=self.phenotype[elementTwo]
+            self.phenotype[elementTwo]=temp
+            self._evaluate()
+
+    def cross(self,individual,n_cross):
+        block_size=random.randrange(1,n_cross)
+        my_phenotype= copy(self.phenotype)
+        block_start = random.randrange(0, len(my_phenotype)-block_size)
+        numbers=[]
+        for i in range(block_start,block_start+block_size):
+            numbers.append(my_phenotype[i])
+        for i in range(block_start,block_start+block_size):
+            for j in range(0,len(individual.phenotype)):
+                if individual.phenotype[j] in numbers:
+                    my_phenotype[i]=individual.phenotype[j]
+        newIndividual = Individual(self.leaderboard)
+        newIndividual.set_phenotype(my_phenotype)
+        print([item for item, count in collections.Counter(my_phenotype).items() if count > 1])
+        return newIndividual
+
+
     def __str__(self):
-        return str(self.phenotype)
+        return str(str(self.quality)+" "+str(self.phenotype))
