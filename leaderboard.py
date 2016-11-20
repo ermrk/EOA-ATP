@@ -1,3 +1,7 @@
+import numpy as np
+from copy import deepcopy
+
+
 class Leaderboard:
     def __init__(self, data_file):
         self.results = 0
@@ -17,21 +21,16 @@ class Leaderboard:
                     j += 1
                 self.results[i] = splited_line
                 i += 1
+            self.results = np.matrix(self.results)
 
     def get_permutation(self, phenotype):
-        j = 0
-        results = self.results.copy()
-        for line in results:
-            results[j] = [line[i - 1] for i in phenotype]
-            j += 1
-        return [results[i - 1] for i in phenotype]
+        new_result = deepcopy(self.results[phenotype])
+        new_result[:, :] = new_result[:, phenotype]
+        return new_result
 
     def evaluate_permutation(self, phenotype):
         permutation = self.get_permutation(phenotype)
-        quality = 0
-        for i in range(0, len(permutation) - 1):
-            for j in range(i + 1, len(permutation)):
-                quality += permutation[i][j]
+        quality = np.sum(np.triu(permutation, 0))
         return quality
 
     def print(self, phenotype):
