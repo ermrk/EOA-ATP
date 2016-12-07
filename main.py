@@ -9,10 +9,10 @@ from leaderboard import Leaderboard
 # DONT FORGET TO ADD ONE TO ALL INDEXES OF PERMUTATION
 
 generation_size = 100  # size of generation
-tournament_size = 10  # how many random individuals compete for usage in the new generation
-n_mutations = 24  # how many genes can we mutate at most
+tournament_size = 3  # how many random individuals compete for usage in the new generation
+n_mutations = 10  # how many genes can we mutate at most
 cross_rate = int(generation_size / 5)  # how many individuals do we cross
-cross_size = 23  # how long block can we cross at most
+cross_size = 54  # how long block can we cross at most
 
 
 def generate_initial_population(length, leaderboard):
@@ -37,6 +37,12 @@ for k in range(0, number_of_iterartions):
     best_individual = max(generation, key=lambda x: x.quality)
     print(str(k) + ": " + str(best_individual.quality))
 
+    # local search
+    print("Local search")
+
+    best_individual = max(generation, key=lambda x: x.quality)
+    print(str(k) + " Local search: " + str(best_individual.quality))
+
     # keeping old individuals
     keeped_old_ones = best_individual
 
@@ -55,7 +61,7 @@ for k in range(0, number_of_iterartions):
         selected_individuals.sort(key=lambda x: x.quality, reverse=True)
         index = 0
         for _ in range(0, tournament_size - 1):
-            if random.randrange(0, 2) ==0:
+            if random.randrange(0, 2) == 0:
                 selected.append(deepcopy(selected_individuals[index]))
             else:
                 index += 1
@@ -72,7 +78,7 @@ for k in range(0, number_of_iterartions):
             selected_indexes_cross.append(index)
         for j in range(0, len(selected_indexes_cross)):
             selected_individuals_cross.append(selected[selected_indexes_cross[j]])
-        for i in range(0, int(cross_rate/2)):
+        for i in range(0, int(cross_rate / 2)):
             indexOne = random.randrange(0, len(selected_individuals_cross))
             indexTwo = random.randrange(0, len(selected_individuals_cross))
             while indexTwo == indexOne:
