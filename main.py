@@ -10,9 +10,11 @@ from leaderboard import Leaderboard
 
 generation_size = 100  # size of generation
 tournament_size = 3  # how many random individuals compete for usage in the new generation
-n_mutations = 10  # how many genes can we mutate at most
+n_mutations = 2  # how many genes can we mutate at most
 cross_rate = int(generation_size / 5)  # how many individuals do we cross
-cross_size = 54  # how long block can we cross at most
+cross_size = 2  # how long block can we cross at most
+local_search_length = 10  # how many improvements do I try for each individual
+local_search_interval = 10  # start local search every n generations
 
 
 def generate_initial_population(length, leaderboard):
@@ -38,10 +40,17 @@ for k in range(0, number_of_iterartions):
     print(str(k) + ": " + str(best_individual.quality))
 
     # local search
-    print("Local search")
+    if k % local_search_interval == 0 and k > 0:
+        print("Local search")
+        for i in range(0, len(generation)):
+            for j in range(0, local_search_length):
 
-    best_individual = max(generation, key=lambda x: x.quality)
-    print(str(k) + " Local search: " + str(best_individual.quality))
+                newIndividual = generation[i].improve()
+                if newIndividual.quality >= generation[i].quality:
+                    generation[i] = newIndividual
+
+        best_individual = max(generation, key=lambda x: x.quality)
+        print(str(k) + " Local search: " + str(best_individual.quality))
 
     # keeping old individuals
     keeped_old_ones = best_individual
@@ -60,11 +69,16 @@ for k in range(0, number_of_iterartions):
             selected_individuals.append(deepcopy(generation[selected_indexes[j]]))
         selected_individuals.sort(key=lambda x: x.quality, reverse=True)
         index = 0
+        appended = False
         for _ in range(0, tournament_size - 1):
             if random.randrange(0, 2) == 0:
+                appended = True
                 selected.append(deepcopy(selected_individuals[index]))
+                break
             else:
                 index += 1
+        if not appended:
+            selected.append(deepcopy(selected_individuals[len(selected_individuals) - 1]))
 
     # cross
     selected_indexes_cross = []
@@ -96,9 +110,74 @@ for k in range(0, number_of_iterartions):
             s = deepcopy(selected[i])
             s.mutate(n_mutations)
             mutated_individuals.append(s)
-            # mutate crossed
+    # mutate crossed
     for i in range(0, len(crossed_individuals)):
         s = crossed_individuals[i]
         s.mutate(n_mutations)
 
     generation = [deepcopy(keeped_old_ones)] + deepcopy(crossed_individuals) + deepcopy(mutated_individuals)
+
+'''
+
+import random
+
+import sys
+
+from individual import Individual
+from leaderboard import Leaderboard
+
+
+def generate_initial_population(length, leaderboard):
+    individual = Individual(leaderboard)
+    individual.generate(length)
+    return individual
+
+
+def alter_individual(individual, position, difference):
+    phenotype = individual.phenotype.copy()
+    player = phenotype[position]
+    phenotype[position] = phenotype[position - difference]
+    phenotype[position - difference] = player
+    altered_individual = Individual(leaderboard)
+    altered_individual.set_phenotype(phenotype)
+    return altered_individual
+
+
+def is_valid_alterance(length, position, difference):
+    if position - difference < 0:
+        return False
+    if position - difference > length - 1:
+        return False
+    return True
+
+
+# load data
+number_of_iterartions = int(sys.argv[2])
+leaderboard = Leaderboard(sys.argv[1])
+number_of_players = leaderboard.get_number_of_players()
+
+# make initial individual
+individual = generate_initial_population(number_of_players, leaderboard)
+
+# calculate its quality
+best_so_far = individual
+print("G: " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
+
+# LOOP
+difference = 1
+position = 0
+
+for i in range(0, number_of_iterartions):
+    while not is_valid_alterance(number_of_players, position, difference):
+        difference = 1
+        position = random.randrange(len(best_so_far.phenotype))
+
+    # try to improve it
+    altered_individual = alter_individual(best_so_far, position, difference)
+    # decide if we will accept it
+    if altered_individual.quality > best_so_far.quality:
+        best_so_far = altered_individual
+        print(str(i) + ": " + str(best_so_far.quality) + ", " + str(best_so_far.phenotype))
+    position = random.randrange(len(best_so_far.phenotype))
+    difference = random.randrange(-len(best_so_far.phenotype), len(best_so_far.phenotype))
+'''

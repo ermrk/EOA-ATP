@@ -1,8 +1,6 @@
 import random
 from copy import deepcopy
 
-import collections
-
 
 class Individual:
     def __init__(self, leaderboard):
@@ -57,6 +55,19 @@ class Individual:
         newIndividual = Individual(self.leaderboard)
         newIndividual.set_phenotype(my_phenotype)
         # print([item for item, count in collections.Counter(my_phenotype).items() if count > 1])
+        return newIndividual
+
+    def improve(self):
+        my_phenotype = deepcopy(self.phenotype)
+        indexOne = random.randrange(0, len(my_phenotype))
+        indexTwo = random.randrange(0, len(my_phenotype))
+        while indexTwo == indexOne:
+            indexTwo = random.randrange(0, len(my_phenotype))
+        temp = my_phenotype[indexOne]
+        my_phenotype[indexOne] = my_phenotype[indexTwo]
+        my_phenotype[indexTwo] = temp
+        newIndividual = Individual(self.leaderboard)
+        newIndividual.set_phenotype(my_phenotype)
         return newIndividual
 
     def __str__(self):
