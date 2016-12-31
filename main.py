@@ -26,7 +26,7 @@ def generate_initial_population(length, leaderboard):
         individual.generate(length)
         generation.append(individual)
     return generation
-for problem_name in ["data/ATP_24.dat","data/ATP_50.dat","data/ATP_55.dat","data/ATP_111.dat","data/ATP_452.dat"]:
+for problem_name in ["data/ATP_452.dat"]:
     for run in range(20):
         # load data
         number_of_iterartions = int(sys.argv[2])
