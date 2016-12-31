@@ -3,8 +3,9 @@ from copy import deepcopy
 
 
 class Leaderboard:
-    def __init__(self, data_file):
+    def __init__(self, data_file, logger):
         self.results = 0
+        self.logger=logger
 
         with open(data_file) as file:
             first_line = True
@@ -31,6 +32,7 @@ class Leaderboard:
     def evaluate_permutation(self, phenotype):
         permutation = self.get_permutation(phenotype)
         quality = np.sum(np.triu(permutation, 0))
+        self.logger.write(quality)
         return quality
 
     def print(self, phenotype):
